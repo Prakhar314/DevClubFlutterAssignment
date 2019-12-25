@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:sensors/sensors.dart';
 import 'package:flutter/services.dart';
@@ -21,8 +23,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  double x = 0, y = 0, z = 0;
-
+  double offX = 0;
+  double offY = 0;
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -32,12 +34,23 @@ class _MyAppState extends State<MyApp> {
 
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    
+
     var a = accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
-        x = event.x;
-        y = event.y;
-        z = event.z;
+        offX = event.x * 0.06 * width;
+        if (offX>0){
+          offX=min(offX, 0.3*width);
+        }
+        else if (offX<0){
+          offX=max(offX, -0.3*width);
+        }
+        offY = event.y * 0.06 * width;
+        if (offY>0){
+          offY=min(offY, 0.3*width);
+        }
+        else if (offX<0){
+          offY=max(offY, -0.3*width);
+        }
       });
     });
 
@@ -83,8 +96,8 @@ class _MyAppState extends State<MyApp> {
               ),
             ),
             Positioned(
-              top: 0.3 * width,
-              left: 0.3 * width,
+              top: 0.3 * width + offY,
+              left: 0.3 * width + offX,
               child: Container(
                 height: 0.4 * width,
                 width: 0.4 * width,
@@ -92,6 +105,12 @@ class _MyAppState extends State<MyApp> {
                     borderRadius: BorderRadius.circular(0.2 * width),
                     color: Color.fromRGBO(120, 2, 255, 0.8)),
               ),
+            ),
+            Positioned(
+              top: 1.2 * width,
+              left: 0.35 * width,
+              child: Text(
+                  "x:${offX.toStringAsFixed(3)}  y:${offY.toStringAsFixed(3)}"),
             ),
           ],
         ),
