@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -27,7 +28,13 @@ class _MyAppState extends State<MyApp> {
   double offY = 0;
   String buttonText = "Begin";
   var accelerE;
+  var accelerEv;
   var timer;
+  int timeInside = 0;
+  var purpleColor = Color.fromRGBO(120, 2, 255, 0.8);
+  var greenColor = Color.fromRGBO(0, 255, 0, 0.8);
+  var blColor = Color.fromRGBO(0, 120, 120, 0.8);
+  var currentColor = Color.fromRGBO(120, 2, 255, 0.8);
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -40,7 +47,7 @@ class _MyAppState extends State<MyApp> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("MyApp"),
+        title: Text("Flutter Accelerometer"),
       ),
       body: Container(
         child: Stack(
@@ -81,20 +88,20 @@ class _MyAppState extends State<MyApp> {
             ),
             Positioned(
               top: 0.3 * width + offY,
-              left: 0.3 * width + offX,
+              left: 0.3 * width - offX,
               child: Container(
                 height: 0.4 * width,
                 width: 0.4 * width,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(0.2 * width),
-                    color: Color.fromRGBO(120, 2, 255, 0.8)),
+                    color: currentColor),
               ),
             ),
             Positioned(
               top: 1.2 * width,
               left: 0.35 * width,
               child: Text(
-                  "x:${offX.toStringAsFixed(3)}  y:${offY.toStringAsFixed(3)}"),
+                  "x:${(accelerEv!=null)?accelerEv.x.toStringAsFixed(3):0}  y:${(accelerEv!=null)?accelerEv.y.toStringAsFixed(3):0}"),
             ),
           ],
         ),
@@ -113,17 +120,44 @@ class _MyAppState extends State<MyApp> {
             buttonText = "Pause";
             accelerE = accelerometerEvents.listen((AccelerometerEvent event) {
               setState(() {
-                offX = event.x * 0.06 * width;
-                if (offX > 0) {
-                  offX = min(offX, 0.3 * width);
-                } else if (offX < 0) {
-                  offX = max(offX, -0.3 * width);
-                }
-                offY = event.y * 0.06 * width;
-                if (offY > 0) {
-                  offY = min(offY, 0.3 * width);
-                } else if (offX < 0) {
-                  offY = max(offY, -0.3 * width);
+                accelerEv = event;
+              });
+            });
+            timer = Timer.periodic(Duration(milliseconds: 200), (Timer time) {
+              setState(() {
+                if (!accelerE.isPaused) {
+                  offX = accelerEv.x * 0.06 * width;
+                  if (offX > 0) {
+                    offX = min(offX, 0.3 * width);
+                  } else if (offX < 0) {
+                    offX = max(offX, -0.3 * width);
+                  }
+                  offY = accelerEv.y * 0.06 * width;
+                  if (offY > 0) {
+                    offY = min(offY, 0.3 * width);
+                  } else if (offX < 0) {
+                    offY = max(offY, -0.3 * width);
+                  }
+                  if (offX < 1.5 && offY < 1.5 && offX>-1.5 && offY>-1.5) {
+                    if (timeInside == 5) {
+                      offX=0;
+                      offY=0;
+                      currentColor = greenColor;
+                      buttonText = "Begin";
+                      accelerE.pause();
+                      timeInside = 0;
+                    } else {
+                      if (currentColor != blColor) {
+                        currentColor = blColor;
+                      }
+                      timeInside += 1;
+                    }
+                  } else {
+                    if (currentColor != purpleColor) {
+                      currentColor = purpleColor;
+                    }
+                    timeInside = 0;
+                  }
                 }
               });
             });
@@ -131,7 +165,7 @@ class _MyAppState extends State<MyApp> {
         },
         child: Text(
           buttonText,
-          style: TextStyle(fontSize: 0.01 * width),
+          style: TextStyle(fontSize: 0.02 * width),
         ),
         backgroundColor: Colors.green,
       ),
