@@ -25,6 +25,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   double offX = 0;
   double offY = 0;
+  String buttonText = "Begin";
+  var accelerE;
+  var timer;
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -34,25 +37,6 @@ class _MyAppState extends State<MyApp> {
 
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-
-    var a = accelerometerEvents.listen((AccelerometerEvent event) {
-      setState(() {
-        offX = event.x * 0.06 * width;
-        if (offX>0){
-          offX=min(offX, 0.3*width);
-        }
-        else if (offX<0){
-          offX=max(offX, -0.3*width);
-        }
-        offY = event.y * 0.06 * width;
-        if (offY>0){
-          offY=min(offY, 0.3*width);
-        }
-        else if (offX<0){
-          offY=max(offY, -0.3*width);
-        }
-      });
-    });
 
     return Scaffold(
       appBar: AppBar(
@@ -114,6 +98,42 @@ class _MyAppState extends State<MyApp> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          if (accelerE != null) {
+            if (accelerE.isPaused) {
+              buttonText = "Pause";
+              accelerE.resume();
+            } else {
+              buttonText = "Resume";
+              accelerE.pause();
+            }
+          } else {
+            buttonText = "Pause";
+            accelerE = accelerometerEvents.listen((AccelerometerEvent event) {
+              setState(() {
+                offX = event.x * 0.06 * width;
+                if (offX > 0) {
+                  offX = min(offX, 0.3 * width);
+                } else if (offX < 0) {
+                  offX = max(offX, -0.3 * width);
+                }
+                offY = event.y * 0.06 * width;
+                if (offY > 0) {
+                  offY = min(offY, 0.3 * width);
+                } else if (offX < 0) {
+                  offY = max(offY, -0.3 * width);
+                }
+              });
+            });
+          }
+        },
+        child: Text(
+          buttonText,
+          style: TextStyle(fontSize: 0.01 * width),
+        ),
+        backgroundColor: Colors.green,
       ),
     );
   }
