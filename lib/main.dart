@@ -53,8 +53,11 @@ class _MyAppState extends State<MyApp> {
         child: Stack(
           children: <Widget>[
             Container(
+              child: Text("Keep the circle at the center for 1 second"),
+              padding: EdgeInsets.all(2),
               height: height,
               width: width,
+              alignment: Alignment.topCenter,
             ),
             Positioned(
               top: 0.1 * width,
@@ -98,10 +101,16 @@ class _MyAppState extends State<MyApp> {
               ),
             ),
             Positioned(
-              top: 1.2 * width,
-              left: 0.35 * width,
+              bottom: 0.3 * width,
+              left: 0.45 * width,
               child: Text(
-                  "x:${(accelerEv!=null)?accelerEv.x.toStringAsFixed(3):0}  y:${(accelerEv!=null)?accelerEv.y.toStringAsFixed(3):0}"),
+                  "x : ${(accelerEv != null) ? accelerEv.x.toStringAsFixed(3) : 0}"),
+            ),
+            Positioned(
+              bottom: 0.25 * width,
+              left: 0.45 * width,
+              child: Text(
+                  "y : ${(accelerEv != null) ? accelerEv.y.toStringAsFixed(3) : 0}"),
             ),
           ],
         ),
@@ -138,10 +147,10 @@ class _MyAppState extends State<MyApp> {
                   } else if (offX < 0) {
                     offY = max(offY, -0.3 * width);
                   }
-                  if (offX < 1.5 && offY < 1.5 && offX>-1.5 && offY>-1.5) {
+                  if (offX < 1.5 && offY < 1.5 && offX > -1.5 && offY > -1.5) {
                     if (timeInside == 5) {
-                      offX=0;
-                      offY=0;
+                      offX = 0;
+                      offY = 0;
                       currentColor = greenColor;
                       buttonText = "Begin";
                       accelerE.pause();
